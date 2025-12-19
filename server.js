@@ -121,27 +121,26 @@ app.get("/", (req, res) => {
 ------------------------ */
 app.post("/api/projects", async (req, res) => {
   try {
+    console.log("Incoming body:", req.body); // 🔍 DEBUG
+
     const project = new Project({
-      name: req.body.name,          // ✅ FIXED
+      name: req.body.name,          // ✅ MUST BE EXPLICIT
       email: req.body.email,
       title: req.body.title,
       type: req.body.type,
       description: req.body.description,
       deadline: req.body.deadline,
-      status: "pending",
+      status: "pending"
     });
 
     await project.save();
 
-    res.status(201).json({
-      message: "Project submitted successfully",
-    });
+    res.status(201).json({ message: "Project submitted successfully" });
   } catch (err) {
-    console.error("❌ Project submission error:", err.message);
-    res.status(500).json({ error: "Failed to submit project" });
+    console.error("Save error:", err);
+    res.status(500).json({ error: "Submission failed" });
   }
 });
-
 /* -----------------------
    ADMIN LOGIN
 ------------------------ */
