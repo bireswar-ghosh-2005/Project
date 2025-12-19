@@ -9,23 +9,26 @@ const nodemailer = require("nodemailer");
 const app = express();
 const PORT = process.env.PORT || 5050;
 
-/* ======================
+/* =======================
    MIDDLEWARE
-====================== */
+======================= */
 app.use(cors());
 app.use(express.json());
 
-/* ======================
+/* =======================
    MONGODB CONNECTION
-====================== */
+======================= */
 mongoose
   .connect(process.env.MONGO_URL)
   .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB error:", err.message));
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err.message);
+    process.exit(1);
+  });
 
-/* ======================
+/* =======================
    PROJECT SCHEMA
-====================== */
+======================= */
 const projectSchema = new mongoose.Schema(
   {
     name: String,
@@ -45,13 +48,15 @@ const projectSchema = new mongoose.Schema(
 
 const Project = mongoose.model("Project", projectSchema);
 
-/* ======================
+/* =======================
    ADMIN AUTH MIDDLEWARE
-====================== */
-function verifyToken(req, res, next) {
+======================= */
+function verifyAdmin(req, res, next) {
   const authHeader = req.headers.authorization;
-  if (!authHeader)
+
+  if (!authHeader) {
     return res.status(401).json({ error: "No token provided" });
+  }
 
   const token = authHeader.split(" ")[1];
 
@@ -63,18 +68,21 @@ function verifyToken(req, res, next) {
   }
 }
 
-/* ======================
-   EMAIL CONFIG (IMPORTANT)
-====================== */
+/* =======================
+   MAIL CONFIG (MAIL_*)
+======================= */
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
   auth: {
     user: process.env.MAIL_USER,
     pass: process.env.MAIL_PASS,
   },
+  connectionTimeout: 10000,
 });
 
-/* VERIFY MAIL CONFIG ON START */
+/* VERIFY MAIL ON START */
 transporter.verify((err) => {
   if (err) {
     console.error("❌ Mail config error:", err.message);
@@ -83,14 +91,14 @@ transporter.verify((err) => {
   }
 });
 
-/* EMAIL SENDER WITH LOGGING */
-async function sendMail(to, subject, text) {
+/* SEND MAIL HELPER */
+async function sendMail(to, subject, html) {
   try {
     const info = await transporter.sendMail({
-      from: process.env.MAIL_FROM,
+      from: `"Cazzual Projects" <${process.env.MAIL_FROM}>`,
       to,
       subject,
-      text,
+      html,
     });
 
     console.log("📧 Email sent:", info.response);
@@ -99,28 +107,44 @@ async function sendMail(to, subject, text) {
   }
 }
 
-/* ======================
+/* =======================
    ROUTES
-====================== */
+======================= */
 
-/* HEALTH CHECK */
+/* Health check */
 app.get("/", (req, res) => {
   res.send("Backend running 🚀");
 });
 
-/* SUBMIT PROJECT (PUBLIC) */
+/* -----------------------
+   SUBMIT PROJECT (PUBLIC)
+------------------------ */
 app.post("/api/projects", async (req, res) => {
   try {
-    const project = new Project(req.body);
+    const project = new Project({
+      name: req.body.name,          // ✅ FIXED
+      email: req.body.email,
+      title: req.body.title,
+      type: req.body.type,
+      description: req.body.description,
+      deadline: req.body.deadline,
+      status: "pending",
+    });
+
     await project.save();
-    res.json({ message: "Project submitted" });
+
+    res.status(201).json({
+      message: "Project submitted successfully",
+    });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ error: "Submission failed" });
+    console.error("❌ Project submission error:", err.message);
+    res.status(500).json({ error: "Failed to submit project" });
   }
 });
 
-/* ADMIN LOGIN */
+/* -----------------------
+   ADMIN LOGIN
+------------------------ */
 app.post("/api/admin/login", (req, res) => {
   const { email, password } = req.body;
 
@@ -134,26 +158,32 @@ app.post("/api/admin/login", (req, res) => {
   const token = jwt.sign(
     { role: "admin" },
     process.env.JWT_SECRET,
-    { expiresIn: "1h" }
+    { expiresIn: "2h" }
   );
 
   res.json({ token });
 });
 
-/* GET ALL PROJECTS (ADMIN) */
-app.get("/api/admin/projects", verifyToken, async (req, res) => {
+/* -----------------------
+   GET ALL PROJECTS (ADMIN)
+------------------------ */
+app.get("/api/admin/projects", verifyAdmin, async (req, res) => {
   const projects = await Project.find().sort({ createdAt: -1 });
   res.json(projects);
 });
 
-/* ACCEPT PROJECT */
+/* -----------------------
+   ACCEPT PROJECT
+------------------------ */
 app.post(
   "/api/admin/projects/:id/accept",
-  verifyToken,
+  verifyAdmin,
   async (req, res) => {
     const project = await Project.findById(req.params.id);
-    if (!project)
+
+    if (!project) {
       return res.status(404).json({ error: "Project not found" });
+    }
 
     project.status = "accepted";
     await project.save();
@@ -161,29 +191,30 @@ app.post(
     await sendMail(
       project.email,
       "Your project has been accepted 🎉",
-      `Hi ${project.name},
-
-Good news! Your project request "${project.title}" has been accepted.
-
-We are currently calculating the pricing and timeline.
-We will get back to you shortly.
-
-Regards,
-Cazzual Team`
+      `
+        <p>Hello ${project.name},</p>
+        <p>Your project <b>${project.title}</b> has been <b>ACCEPTED</b>.</p>
+        <p>We are calculating pricing and will contact you shortly.</p>
+        <p>— Cazzual Team</p>
+      `
     );
 
-    res.json({ message: "Project accepted & email attempted" });
+    res.json({ message: "Project accepted" });
   }
 );
 
-/* REJECT PROJECT */
+/* -----------------------
+   REJECT PROJECT
+------------------------ */
 app.post(
   "/api/admin/projects/:id/reject",
-  verifyToken,
+  verifyAdmin,
   async (req, res) => {
     const project = await Project.findById(req.params.id);
-    if (!project)
+
+    if (!project) {
       return res.status(404).json({ error: "Project not found" });
+    }
 
     project.status = "rejected";
     await project.save();
@@ -191,26 +222,22 @@ app.post(
     await sendMail(
       project.email,
       "Regarding your project request",
-      `Hi ${project.name},
-
-Thank you for reaching out to us.
-
-After reviewing your project "${project.title}",
-we regret to inform you that we are unable to take it up at this time.
-
-We truly appreciate your interest and wish you all the best.
-
-Regards,
-Cazzual Team`
+      `
+        <p>Hello ${project.name},</p>
+        <p>Thank you for your interest.</p>
+        <p>Unfortunately, we cannot take up your project at this time.</p>
+        <p>We wish you all the best.</p>
+        <p>— Cazzual Team</p>
+      `
     );
 
-    res.json({ message: "Project rejected & email attempted" });
+    res.json({ message: "Project rejected" });
   }
 );
 
-/* ======================
+/* =======================
    START SERVER
-====================== */
+======================= */
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
