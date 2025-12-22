@@ -9,7 +9,7 @@
 
 <body>
 
-  <!-- LOGO + DROPDOWN MENU -->
+  <!-- LOGO + MENU -->
   <div class="top-left">
     <img src="logo.png" alt="Cazzual Logo" class="logo" />
     <div class="dropdown">
@@ -19,47 +19,65 @@
     </div>
   </div>
 
-  <!-- MAIN FORM -->
-  <div class="container">
-    <h1>Request a Project</h1>
-    <p class="subtitle">
-      Tell us what you want to build — we’ll take care of the rest
-    </p>
+  <!-- HERO SECTION 1 -->
+  <section class="hero hero-one">
+    <div class="hero-text">
+      <h1>We Build Your Ideas</h1>
+      <p>Projects • Models • Websites • Handwritten Work</p>
+    </div>
+  </section>
 
-    <form id="projectForm">
+  <!-- HERO SECTION 2 -->
+  <section class="hero hero-two">
+    <div class="hero-text">
+      <h1>From Concept to Completion</h1>
+      <p>Handled by real people, not bots</p>
+    </div>
+  </section>
 
-      <input type="text" id="name" placeholder="Your Name" required />
-      <input type="email" id="email" placeholder="Your Email" required />
-      <input type="text" id="title" placeholder="Project Title" required />
+  <!-- FORM SECTION -->
+  <section class="form-section">
+    <div class="container">
+      <h1>Request a Project</h1>
+      <p class="subtitle">
+        Tell us what you want to build — we’ll take care of the rest
+      </p>
 
-      <select id="type" required>
-        <option value="">Select Project Type</option>
-        <option>Model Making</option>
-        <option>Website / Apps</option>
-        <option>Handwritten</option>
-        <option>Typed</option>
-        <option>Others</option>
-      </select>
+      <form id="projectForm">
 
-      <textarea
-        id="description"
-        placeholder="Project Description (Optional)"
-        rows="4"
-      ></textarea>
+        <input type="text" id="name" placeholder="Your Name" required />
+        <input type="email" id="email" placeholder="Your Email" required />
+        <input type="text" id="title" placeholder="Project Title" required />
 
-      <input type="date" id="deadline" required />
+        <select id="type" required>
+          <option value="">Select Project Type</option>
+          <option>Model Making</option>
+          <option>Website / Apps</option>
+          <option>Handwritten</option>
+          <option>Typed</option>
+          <option>Others</option>
+        </select>
 
-      <button type="submit" id="submitBtn">
-        <span id="btnText">Submit Project</span>
-        <span class="spinner" id="spinner"></span>
-      </button>
+        <textarea
+          id="description"
+          placeholder="Project Description (Optional)"
+          rows="4"
+        ></textarea>
 
-    </form>
+        <input type="date" id="deadline" required />
 
-    <div id="message"></div>
-  </div>
+        <button type="submit" id="submitBtn">
+          <span id="btnText">Submit Project</span>
+          <span class="spinner" id="spinner"></span>
+        </button>
 
-  <!-- SCRIPT -->
+      </form>
+
+      <div id="message"></div>
+    </div>
+  </section>
+
+  <!-- SCRIPT (unchanged logic) -->
   <script>
     const form = document.getElementById("projectForm");
     const messageDiv = document.getElementById("message");
@@ -73,19 +91,18 @@
       e.preventDefault();
       messageDiv.innerHTML = "";
 
-      // Button loading state
       submitBtn.disabled = true;
       submitBtn.classList.add("loading");
       btnText.textContent = "Please wait...";
       spinner.style.display = "inline-block";
 
       const data = {
-        name: document.getElementById("name").value,
-        email: document.getElementById("email").value,
-        title: document.getElementById("title").value,
-        type: document.getElementById("type").value,
-        description: document.getElementById("description").value,
-        deadline: document.getElementById("deadline").value
+        name: name.value,
+        email: email.value,
+        title: title.value,
+        type: type.value,
+        description: description.value,
+        deadline: deadline.value
       };
 
       try {
@@ -99,20 +116,16 @@
           messageDiv.innerHTML =
             "<p class='success'>✅ Project submitted successfully!</p>";
           form.reset();
-
-          setTimeout(() => {
-            messageDiv.innerHTML = "";
-          }, 2000);
+          setTimeout(() => (messageDiv.innerHTML = ""), 2000);
         } else {
           messageDiv.innerHTML =
             "<p class='error'>❌ Something went wrong. Try again.</p>";
         }
       } catch {
         messageDiv.innerHTML =
-          "<p class='error'>❌ Server not reachable. Please try later.</p>";
+          "<p class='error'>❌ Server not reachable.</p>";
       }
 
-      // Restore button
       submitBtn.disabled = false;
       submitBtn.classList.remove("loading");
       btnText.textContent = "Submit Project";

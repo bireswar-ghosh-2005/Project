@@ -6,13 +6,11 @@
 body {
   margin: 0;
   padding: 0;
-  min-height: 100vh;
-  background: #eef3fb;
 }
 
 /* LOGO MENU */
 .top-left {
-  position: absolute;
+  position: fixed;
   top: 15px;
   left: 15px;
   z-index: 1000;
@@ -27,11 +25,10 @@ body {
 
 .dropdown {
   display: none;
-  margin-top: 8px;
   background: white;
   border-radius: 6px;
   box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-  overflow: hidden;
+  margin-top: 8px;
 }
 
 .top-left:hover .dropdown {
@@ -43,52 +40,67 @@ body {
   padding: 10px 15px;
   text-decoration: none;
   color: #333;
-  font-size: 14px;
 }
 
-.dropdown a:hover {
-  background: #f0f0f0;
+/* HERO SECTIONS */
+.hero {
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-align: center;
 }
 
-/* FORM CARD */
+.hero-one {
+  background-image: url("hero1.jpg");
+}
+
+.hero-two {
+  background-image: url("hero2.jpg");
+}
+
+.hero-text {
+  background: rgba(0,0,0,0.55);
+  padding: 30px;
+  border-radius: 10px;
+}
+
+.hero-text h1 {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.hero-text p {
+  font-size: 18px;
+}
+
+/* FORM SECTION */
+.form-section {
+  background: #eef3fb;
+  padding: 100px 0;
+}
+
 .container {
   max-width: 420px;
-  margin: 100px auto;
+  margin: auto;
   background: white;
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
-h1 {
-  text-align: center;
-  margin-bottom: 6px;
-}
-
-.subtitle {
-  text-align: center;
-  font-size: 14px;
-  color: #555;
-  margin-bottom: 20px;
-}
-
 /* INPUTS */
-input,
-textarea,
-select {
+input, textarea, select {
   width: 100%;
   padding: 12px;
   margin-top: 12px;
   border-radius: 6px;
   border: 1px solid #ccc;
-  font-size: 14px;
 }
 
-textarea {
-  resize: vertical;
-}
-
-/* BUTTON */
 button {
   width: 100%;
   margin-top: 18px;
@@ -97,20 +109,11 @@ button {
   color: white;
   border: none;
   border-radius: 6px;
-  font-size: 15px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-button:hover {
-  background: #3b5be3;
 }
 
 button.loading {
   background: black;
-  cursor: not-allowed;
 }
 
 /* SPINNER */
@@ -126,12 +129,9 @@ button.loading {
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
-/* MESSAGES */
 .success {
   color: green;
   text-align: center;
