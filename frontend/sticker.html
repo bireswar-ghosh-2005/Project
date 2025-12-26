@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Select Stickers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      font-family: Arial, sans-serif;
+      background: #f4f6fb;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 42px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      text-align: center;
+      font-size: 18px;
+      margin-bottom: 30px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .sticker {
+      border: 4px solid transparent;
+      border-radius: 16px;
+      padding: 10px;
+      background: white;
+      cursor: pointer;
+      transition: 0.2s;
+      text-align: center;
+    }
+
+    .sticker img {
+      width: 100%;
+      height: 140px;
+      object-fit: contain;
+    }
+
+    .sticker span {
+      display: block;
+      margin-top: 8px;
+      font-weight: bold;
+    }
+
+    .sticker.selected {
+      border-color: #4f6ef7;
+      transform: scale(1.05);
+    }
+
+    .actions {
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    button {
+      padding: 14px 30px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      background: #4f6ef7;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Select Any 4 Stickers</h1>
+  <p>You can choose exactly 4 stickers (optional)</p>
+
+  <div class="grid" id="stickerGrid">
+    <!-- SAMPLE STICKERS -->
+    <div class="sticker" data-code="STK01">
+      <img src="stickers/sticker1.jpg">
+      <span>STK01</span>
+    </div>
+
+    <div class="sticker" data-code="STK02">
+      <img src="stickers/sticker2.jpg">
+      <span>STK02</span>
+    </div>
+
+    <div class="sticker" data-code="STK03">
+      <img src="stickers/sticker3.jpg">
+      <span>STK03</span>
+    </div>
+
+    <div class="sticker" data-code="STK04">
+      <img src="stickers/sticker4.jpg">
+      <span>STK04</span>
+    </div>
+
+    <!-- add more as needed -->
+  </div>
+
+  <div class="actions">
+    <button id="goBtn" disabled>Go Back</button>
+  </div>
+
+  <script>
+    const stickers = document.querySelectorAll(".sticker");
+    const goBtn = document.getElementById("goBtn");
+    let selected = [];
+
+    stickers.forEach(sticker => {
+      sticker.addEventListener("click", () => {
+        const code = sticker.dataset.code;
+
+        if (sticker.classList.contains("selected")) {
+          sticker.classList.remove("selected");
+          selected = selected.filter(c => c !== code);
+        } else {
+          if (selected.length >= 4) return;
+          sticker.classList.add("selected");
+          selected.push(code);
+        }
+
+        goBtn.disabled = selected.length !== 4;
+      });
+    });
+
+    goBtn.addEventListener("click", () => {
+      localStorage.setItem("selectedStickers", JSON.stringify(selected));
+      window.location.href = "index.html";
+    });
+  </script>
+
+</body>
+</html>

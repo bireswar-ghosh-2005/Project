@@ -57,6 +57,24 @@
         <textarea placeholder="Project Description (Optional)"></textarea>
         <input type="date" required />
 
+
+<!-- OPTIONAL STICKER SECTION -->
+<div class="sticker-section">
+  <p class="sticker-title">
+    🎨 Want custom stickers? (Optional)
+  </p>
+
+  <button
+    type="button"
+    class="sticker-btn"
+    onclick="window.location.href='sticker.html'"
+  >
+    Choose Stickers
+  </button>
+
+  <p id="stickerPreview" class="sticker-preview"></p>
+</div>
+
         <button type="submit">Submit Project</button>
       </form>
     </div>
@@ -67,6 +85,17 @@
     </a>
 
   </section>
+
+<script>
+  // Show selected stickers if available
+  const stickerPreview = document.getElementById("stickerPreview");
+  const selectedStickers = JSON.parse(localStorage.getItem("selectedStickers"));
+
+  if (selectedStickers && selectedStickers.length > 0) {
+    stickerPreview.innerText =
+      "Selected Stickers: " + selectedStickers.join(", ");
+  }
+</script>
 
 </body>
 </html>
