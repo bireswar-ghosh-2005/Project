@@ -49,3 +49,25 @@ document.addEventListener("DOMContentLoaded", () => {
     input.value = stickers.join(",");
   }
 });
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const stickerBtn = document.getElementById("stickerBtn");
+  const stickersInput = document.getElementById("stickersInput");
+
+  // Load previously selected stickers
+  const selectedStickers = JSON.parse(
+    localStorage.getItem("selectedStickers") || "[]"
+  );
+
+  if (selectedStickers.length > 0) {
+    stickerBtn.innerText =
+      "🎁 Stickers: " + selectedStickers.join(", ");
+    stickersInput.value = selectedStickers.join(",");
+  }
+
+  // Redirect to sticker page on click
+  stickerBtn.addEventListener("click", () => {
+    window.location.href = "sticker.html";
+  });
+});

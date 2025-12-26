@@ -170,6 +170,25 @@ button:hover {
   background: #3d56d8;
 }
 
+.sticker-btn {
+  background: #ff6fae;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  width: auto;
+}
+
+.sticker-btn:hover {
+  background: #ff4d9a;
+}
+
+
+
 /* RESPONSIVE */
 @media (max-width: 900px) {
   .main-section {
